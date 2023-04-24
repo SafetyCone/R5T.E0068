@@ -7,7 +7,11 @@ namespace R5T.E0068
     {
         static void Main()
         {
-            Console.WriteLine("Hello World!");
+            //Explorations.Instance.Output_FirstCode();
+            //Explorations.Instance.Output_FullyFormedClass();
+            //Explorations.Instance.Describe_Trivia();
+
+            TriviaExperiments.Instance.WhatIf_WrongKind();
         }
     }
 }
