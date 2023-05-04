@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using R5T.F0000;
 using R5T.F0000.Extensions;
 using R5T.F0124;
 using R5T.F0124.Extensions;
@@ -16,48 +19,61 @@ namespace R5T.E0068
     [FunctionalityMarker]
     public partial interface ISyntaxTokenOperator : IFunctionalityMarker
     {
+        public SyntaxToken Annotate(
+            SyntaxToken token,
+            out SyntaxAnnotation annotation)
+        {
+            return Instances.SyntaxAnnotationOperator.Annotate(
+                token,
+                out annotation);
+        }
+
         public string Describe_To_String(
             SyntaxToken token,
             ILineSeparator lineSeparator)
         {
-            var lines = Instances.EnumerableOperator.From($"{token.Text}: SyntaxToken")
+            var textRepresentation = Instances.TextOperator.Get_TextRepresentation(token.Text);
+
+            var lines = Instances.EnumerableOperator.From($"{textRepresentation}: SyntaxToken")
                 .Append(Instances.EnumerableOperator.New<string>()
                     .Append(
-                        $"{token.Kind()} ({token.RawKind}): kind (raw kind)",
+                        $"{token.Kind()}: kind ({token.RawKind})",
                         $"{token.Text}: text",
                         $"{token.ValueText}: value text",
                         $"{token.IsMissing}: is missing")
                     .AppendIf(
                         token.Value is not null,
                         // Use an expression to avoid execution if the value is actually null!
-                        () => $"{token.Value}, ({token.Value.GetType().FullName}): value, (type)")
+                        () => $"{token.Value}: value, ({token.Value.GetType().FullName})")
                     .AppendIf(
                         token.Value is null,
                         $"{Instances.Strings.Null_TextRepresentation}: value")
-                    .Append($"{token.HasLeadingTrivia}: has leading trivia")
+                    .AppendIf(
+                        !token.HasLeadingTrivia,
+                        () => $"{token.HasLeadingTrivia}: has leading trivia")
                     .AppendIf(
                         token.HasLeadingTrivia,
                         () =>
                         {
-                            var triviaDecription = token.LeadingTrivia.Any() && token.LeadingTrivia.First().Span.Length > 0
-                                ? token.LeadingTrivia.ToFullString()
-                                : Instances.Strings.Empty_TextRepresentation
-                                ;
+                            var leadingTriviaDisplay = Instances.SyntaxTriviaListOperator.Display_To_String(token.LeadingTrivia);
 
-                            var output = $"{triviaDecription}: leading trivia";
+                            var count = token.LeadingTrivia.Count;
+
+                            var output = $"{leadingTriviaDisplay}: leading trivia list (count: {count})";
                             return output;
                         })
-                    .Append($"{token.HasTrailingTrivia}: has trailing trivia")
+                    .AppendIf(
+                        !token.HasTrailingTrivia,    
+                        () => $"{token.HasTrailingTrivia}: has trailing trivia")
                     .AppendIf(
                         token.HasTrailingTrivia,
                         () =>
                         {
-                            var triviaDecription = token.LeadingTrivia.Any() && token.LeadingTrivia.First().Span.Length > 0
-                                ? token.LeadingTrivia.ToFullString()
-                                : Instances.Strings.Empty_TextRepresentation
-                                ;
+                            var trailingTriviaDisplay = Instances.SyntaxTriviaListOperator.Display_To_String(token.TrailingTrivia);
 
-                            var output = $"{triviaDecription}: trailing trivia";
+                            var count = token.TrailingTrivia.Count;
+
+                            var output = $"{trailingTriviaDisplay}: trailing trivia list (count: {count})";
                             return output;
                         })
                     .Tabinate())
@@ -68,6 +84,13 @@ namespace R5T.E0068
                 lineSeparator);
 
             return line;
+        }
+
+        public string Describe_To_String(SyntaxToken token)
+        {
+            return this.Describe_To_String(
+                token,
+                Instances.Strings.NewLine_ForEnvironment.ToLineSeparator());
         }
 
         public void Describe_To(
@@ -88,15 +111,98 @@ namespace R5T.E0068
                 Console.Out);
         }
 
+        public SyntaxTriviaList Get_LeadingSeparatingTrivia(SyntaxToken syntaxToken)
+        {
+            var previousToken = syntaxToken.GetPreviousToken();
+
+            var previousTrailingTrivia = previousToken.TrailingTrivia;
+            var leadingTrivia = syntaxToken.LeadingTrivia;
+
+            var leadingSeparatingTrivia = Instances.SyntaxTriviaListOperator.Combine(
+                previousTrailingTrivia,
+                leadingTrivia);
+
+            return leadingSeparatingTrivia;
+        }
+
+        /// <summary>
+        /// Chooses <see cref="Get_LeadingSeparatingTrivia(SyntaxToken)"/> as the default.
+        /// </summary>
+        public SyntaxTriviaList Get_SeparatingTrivia(SyntaxToken syntaxToken)
+        {
+            return this.Get_LeadingSeparatingTrivia(syntaxToken);
+        }
+
         public bool Is_None(SyntaxToken token)
         {
             var output = token.IsKind(SyntaxKind.None);
             return output;
         }
 
-        //public bool Is_Empty(SyntaxToken token)
+        public WasFound<SyntaxTrivia> Is_WithinStructuredTrivia(SyntaxToken token)
+        {
+            var isPartOfStructuredTrivia = token.IsPartOfStructuredTrivia();
+            if(!isPartOfStructuredTrivia)
+            {
+                return WasFound.NotFound<SyntaxTrivia>();
+            }
+
+            var parent = token.Parent;
+            while(parent is not StructuredTriviaSyntax)
+            {
+                parent = parent.Parent;
+            }
+
+            var trivia = (parent as StructuredTriviaSyntax).ParentTrivia;
+            return WasFound.Found(trivia);
+        }
+
+        /// <summary>
+        /// The syntax token type has a parameterless public constructor (like all value-types).
+        /// But no other constructors.
+        /// Thus it is possible to create a new syntax token in its initial state.
+        /// </summary>
+        public SyntaxToken New()
+        {
+            var output = new SyntaxToken();
+            return output;
+        }
+
+        // No good, since cannot modify syntax tokens one created!
+        //public SyntaxToken New(
+        //    IEnumerable<Func<SyntaxToken, SyntaxToken>> modifiers)
         //{
-        //    token.
+        //    var output = this.New();
+
+        //    foreach (var modifier in modifiers)
+        //    {
+        //        output = modifier(output);
+        //    }
+
+        //    return output;
         //}
+
+        // No good, since cannot modify syntax tokens once created!
+        //public SyntaxToken New(
+        //    params Func<SyntaxToken, SyntaxToken>[] modifiers)
+        //{
+        //    return this.New(modifiers.AsEnumerable());
+        //}
+
+        public SyntaxToken Without_LeadingTrivia(SyntaxToken token)
+        {
+            var output = token.WithLeadingTrivia(
+                Instances.SyntaxTriviaLists.For_HasTrivia_False);
+
+            return output;
+        }
+
+        public SyntaxToken Without_TrailingTrivia(SyntaxToken token)
+        {
+            var output = token.WithTrailingTrivia(
+                Instances.SyntaxTriviaLists.For_HasTrivia_False);
+
+            return output;
+        }
     }
 }

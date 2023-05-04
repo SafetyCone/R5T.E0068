@@ -1,0 +1,6 @@
+: SyntaxTrivia
+        None (0): kind (raw kind)
+        0 (0): full length (length)
+        False: is directive
+        <none>: parent token
+        False: has structure

@@ -1,0 +1,8 @@
+: SyntaxToken
+        None: kind (0)
+        : text
+        : value text
+        False: is missing
+        <null>: value
+        False: has leading trivia
+        False: has trailing trivia
