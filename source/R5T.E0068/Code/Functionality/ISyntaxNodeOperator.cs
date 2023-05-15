@@ -67,6 +67,31 @@ namespace R5T.E0068
             return outputSyntaxNode;
         }
 
+        public StructuredTriviaSyntax Get_AncestorStructuredTriviaSyntax(SyntaxNode node)
+        {
+            this.Verify_IsPartOfStructuredTrivia(node);
+
+            // Base case: return this node if it is structured trivia.
+            if(node is StructuredTriviaSyntax structuredTrivia)
+            {
+                return structuredTrivia;
+            }
+
+            // Else, recurse on parent.
+            var parentNode = this.Verify_HasParent(node);
+
+            var output = this.Get_AncestorStructuredTriviaSyntax(parentNode);
+            return output;
+        }
+
+        public SyntaxTrivia Get_AncestorStructuredTrivia(SyntaxNode node)
+        {
+            var syntax = this.Get_AncestorStructuredTriviaSyntax(node);
+
+            var parentTrivia = Instances.StructuredTriviaSyntaxOperator.Verify_HasParentTrivia(syntax);
+            return parentTrivia;
+        }
+
         public SyntaxToken Get_AnnotatedDescendantToken(
             SyntaxNode node,
             SyntaxAnnotation annotation)
@@ -147,7 +172,7 @@ namespace R5T.E0068
         /// <remarks>
         /// Includes trivias inside of structured trivias.
         /// </remarks>
-        public IEnumerable<SyntaxTrivia> Get_DescendantTrivia(SyntaxNode node)
+        public IEnumerable<SyntaxTrivia> Get_DescendantTrivias(SyntaxNode node)
         {
             var output = node.DescendantTrivia(descendIntoTrivia: true);
             return output;
@@ -155,7 +180,7 @@ namespace R5T.E0068
 
         public SyntaxTrivia[] Get_NewLineTrivias(SyntaxNode node)
         {
-            var output = Instances.SyntaxNodeOperator.Get_DescendantTrivia(node)
+            var output = Instances.SyntaxNodeOperator.Get_DescendantTrivias(node)
                 .Where(trivia => Instances.SyntaxTriviaOperator.Is_EndOfLine(trivia))
                 .Now();
 
@@ -222,6 +247,12 @@ namespace R5T.E0068
                 .SingleOrDefault();
 
             var output = WasFound.From(annotatedTriviaOrDefault);
+            return output;
+        }
+
+        public WasFound<SyntaxNode> Has_Parent(SyntaxNode node)
+        {
+            var output = WasFound.From(node.Parent);
             return output;
         }
 
@@ -303,7 +334,7 @@ namespace R5T.E0068
                 //  * If the token is within a structured trivia:
                 //      => Insert prior node trailing trivia after the trivia containing the token in the leading trivia of the next node.
                 //  * Else, prepend prior node trailing trivia to the leading trivia of the next node.
-                var tokenIsWithinStructuredTrivia = Instances.SyntaxTokenOperator.Is_WithinStructuredTrivia(newToken);
+                var tokenIsWithinStructuredTrivia = Instances.SyntaxTokenOperator.Is_InStructuredTrivia(newToken);
 
                 var newNextTokenLeadingTrivia = tokenIsWithinStructuredTrivia
                     ? Instances.SyntaxTriviaListOperator.Insert_After(
@@ -525,18 +556,47 @@ namespace R5T.E0068
         }
 
         public TNode New<TNode>(
-            Func<TNode> nodeConstructor,
+            TNode node,
             params Func<TNode, TNode>[] operations)
             where TNode : SyntaxNode
         {
-            var node = nodeConstructor();
-
             foreach (var operation in operations)
             {
                 node = operation(node);
             }
 
             return node;
+        }
+
+        public TNode New<TNode>(
+            Func<TNode> nodeConstructor,
+            params Func<TNode, TNode>[] operations)
+            where TNode : SyntaxNode
+        {
+            var node = nodeConstructor();
+
+            var output = this.New(
+                node,
+                operations);
+
+            return output;
+        }
+
+        public SyntaxNode Verify_HasParent(SyntaxNode node)
+        {
+            var hasParent = this.Has_Parent(node);
+
+            return hasParent.ResultOrExceptionIfNotFound(
+                "Node had no parent node.");
+        }
+
+        public void Verify_IsPartOfStructuredTrivia(SyntaxNode node)
+        {
+            var isPartOfStructuredTrivia = node.IsPartOfStructuredTrivia();
+            if (!isPartOfStructuredTrivia)
+            {
+                throw new Exception("Node was not part of a structured trivia.");
+            }
         }
 
         public void Verify_NoTokenTrailingTriviaAfterMove(SyntaxNode node)

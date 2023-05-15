@@ -19,13 +19,17 @@ namespace R5T.E0068
             //Explorations.Instance.Create_MainMethod_WithIndentation();
             //Explorations.Instance.Create_MainMethod_WithDoubleIndentation();
             //Explorations.Instance.Create_MainMethod_SetIndentation();
-            Explorations.Instance.Create_MainMethod_SetBlockIndentation();
+            //Explorations.Instance.Create_MainMethod_SetBlockIndentation();
             //Explorations.Instance.Create_XmlDocumentationComment();
             //Explorations.Instance.List_SyntaxNodesInCodeFile();
             //Explorations.Instance.List_SyntaxTokens_InCodeFile();
+            //Explorations.Instance.Find_DocumentationCommentExteriorTrivias();
+            //Explorations.Instance.Indent_DocumentationCommentTrivias();
 
             //SyntaxTokenExplorations.Instance.WhatDoesInitialTokenLookLike();
             //SyntaxTriviaExplorations.Instance.WhatDoesInitialTokenLookLike();
+
+            //Experiments.Instance.WhatIs_DocumentationCommentExteriorParentNextNode();
 
             //TriviaExperiments.Instance.Discover_AllowedSyntaxTriviaSyntaxKinds();
             //TriviaExperiments.Instance.WhatIf_WrongKind();
@@ -35,6 +39,7 @@ namespace R5T.E0068
 
             //Demonstrations.Instance.Verify_NoTokenTrailingTriviaAfterMove();
             //Demonstrations.Instance.Verify_NoNodeTrailingTriviaAfterMove();
+            Demonstrations.Instance.Indent_Block();
         }
     }
 }

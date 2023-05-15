@@ -61,6 +61,9 @@ namespace R5T.E0068
             return node;
         }
 
+        /// <summary>
+        /// Annotates tokens.
+        /// </summary>
         public TNode AnnotateTokens<TNode>(
             TNode node,
             IEnumerable<SyntaxToken> syntaxTokens,

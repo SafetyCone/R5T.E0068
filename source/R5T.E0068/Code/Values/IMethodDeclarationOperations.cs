@@ -1,4 +1,5 @@
 using System;
+
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,17 +11,21 @@ namespace R5T.E0068
     [ValuesMarker]
     public partial interface IMethodDeclarationOperations : IValuesMarker
     {
-        public MethodDeclarationSyntax Ensure_HasBody(MethodDeclarationSyntax methodDeclaration)
+        public Func<MethodDeclarationSyntax, MethodDeclarationSyntax> Ensure_HasBody_Test =>
+            syntax => Instances.BaseMethodDeclarationOperations.Ensure_HasBody(syntax);
+
+        public MethodDeclarationSyntax Ensure_HasBody(MethodDeclarationSyntax syntax)
         {
-            var hasBody = Instances.MethodDeclarationOperator.Has_Body(methodDeclaration);
+            return Instances.BaseMethodDeclarationOperations.Ensure_HasBody(syntax);
+        }
 
-            var output = hasBody
-                ? methodDeclaration
-                : methodDeclaration.WithBody(
-                    SyntaxFactory.Block())
-                ;
+        public MethodDeclarationSyntax Ensure_BodyHasOpenAndCloseBracesOnNewLines(MethodDeclarationSyntax syntax)
+        {
+            var bodyWrapper = new BlockSyntaxWrapper(syntax.Body);
 
-            return output;
+            Instances.HasOpenAndCloseBracesOperator.Ensure_OpenAndCloseBracesOnNewLines(bodyWrapper);
+
+            return syntax.WithBody(bodyWrapper.BlockSyntax);
         }
     }
 }

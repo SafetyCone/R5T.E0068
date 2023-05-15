@@ -10,6 +10,6 @@ namespace R5T.E0068
     [ValuesMarker]
     public partial interface IMethodNames : IValuesMarker
     {
-        public ISimplestMethodName Main => "Main".ToSimplestMethodName();
+        public ISimpleMethodName Main => "Main".ToSimpleMethodName();
     }
 }

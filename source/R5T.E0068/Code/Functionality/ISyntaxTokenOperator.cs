@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 
@@ -111,6 +112,24 @@ namespace R5T.E0068
                 Console.Out);
         }
 
+        public StructuredTriviaSyntax Get_AncestorStructuredTriviaSyntax(SyntaxToken token)
+        {
+            this.Verify_IsPartOfStructuredTrivia(token);
+
+            var parentNode = this.Verify_HasParent(token);
+
+            var output = Instances.SyntaxNodeOperator.Get_AncestorStructuredTriviaSyntax(parentNode);
+            return output;
+        }
+
+        public SyntaxTrivia Get_AncestorStructuredTrivia(SyntaxToken token)
+        {
+            var syntax = this.Get_AncestorStructuredTriviaSyntax(token);
+
+            var parentTrivia = Instances.StructuredTriviaSyntaxOperator.Verify_HasParentTrivia(syntax);
+            return parentTrivia;
+        }
+
         public SyntaxTriviaList Get_LeadingSeparatingTrivia(SyntaxToken syntaxToken)
         {
             var previousToken = syntaxToken.GetPreviousToken();
@@ -133,13 +152,27 @@ namespace R5T.E0068
             return this.Get_LeadingSeparatingTrivia(syntaxToken);
         }
 
+        public WasFound<SyntaxNode> Has_Parent(SyntaxToken token)
+        {
+            var output = WasFound.From(token.Parent);
+            return output;
+        }
+
         public bool Is_None(SyntaxToken token)
         {
             var output = token.IsKind(SyntaxKind.None);
             return output;
         }
 
-        public WasFound<SyntaxTrivia> Is_WithinStructuredTrivia(SyntaxToken token)
+        public bool Is_NotNone(SyntaxToken token)
+        {
+            var isNone = this.Is_None(token);
+
+            var output = !isNone;
+            return output;
+        }
+
+        public WasFound<SyntaxTrivia> Is_InStructuredTrivia(SyntaxToken token)
         {
             var isPartOfStructuredTrivia = token.IsPartOfStructuredTrivia();
             if(!isPartOfStructuredTrivia)
@@ -188,6 +221,23 @@ namespace R5T.E0068
         //{
         //    return this.New(modifiers.AsEnumerable());
         //}
+
+        public SyntaxNode Verify_HasParent(SyntaxToken token)
+        {
+            var hasParent = this.Has_Parent(token);
+
+            return hasParent.ResultOrExceptionIfNotFound(
+                "Token had no parent node.");
+        }
+
+        public void Verify_IsPartOfStructuredTrivia(SyntaxToken token)
+        {
+            var isPartOfStructuredTrivia = token.IsPartOfStructuredTrivia();
+            if (!isPartOfStructuredTrivia)
+            {
+                throw new Exception("Token was not part of a structured trivia.");
+            }
+        }
 
         public SyntaxToken Without_LeadingTrivia(SyntaxToken token)
         {

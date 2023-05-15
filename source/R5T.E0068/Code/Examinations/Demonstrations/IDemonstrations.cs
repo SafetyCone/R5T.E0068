@@ -8,6 +8,27 @@ namespace R5T.E0068
     [DemonstrationsMarker]
     public partial interface IDemonstrations : IDemonstrationsMarker
     {
+        public void Indent_Block()
+        {
+            /// Inputs.
+            var codeFilePath = Instances.FilePaths.CSharp_Temp;
+
+
+            /// Run.
+            var methodDeclaration = Instances.SyntaxParser.Parse_MethodDeclaration(
+                Instances.MethodDeclarations.Main_WithDocumentation
+                );
+
+            methodDeclaration = Instances.SyntaxIndentationOperator.Indent_Block(methodDeclaration);
+
+            Instances.SyntaxSerializer.WriteToFile_Synchronous(
+                methodDeclaration,
+                codeFilePath);
+
+            Instances.NotepadPlusPlusOperator.Open(
+                codeFilePath.Value);
+        }
+
         /// <summary>
         /// While moving all trivia from trailing to leading on tokens *should* result in the same being true for nodes
         /// (see <see cref="Verify_NoTokenTrailingTriviaAfterMove"/>), test it.

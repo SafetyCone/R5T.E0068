@@ -18,6 +18,11 @@ namespace R5T.E0068.Extensions
             return Instances.SyntaxTokenOperator.Is_None(token);
         }
 
+        public static bool Is_NotNone(this SyntaxToken token)
+        {
+            return Instances.SyntaxTokenOperator.Is_NotNone(token);
+        }
+
         public static SyntaxToken Without_TrailingTrivia(this SyntaxToken token)
         {
             return Instances.SyntaxTokenOperator.Without_TrailingTrivia(token);

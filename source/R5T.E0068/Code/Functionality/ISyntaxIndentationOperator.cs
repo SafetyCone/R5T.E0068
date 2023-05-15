@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
@@ -7,12 +8,44 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using R5T.T0132;
 
+using R5T.E0068.Extensions;
+
 
 namespace R5T.E0068
 {
     [FunctionalityMarker]
     public partial interface ISyntaxIndentationOperator : IFunctionalityMarker
     {
+        //public IEnumerable<SyntaxTrivia> Get_Indentation_String(SyntaxTrivia trivia)
+        //{
+        //    // Do not include any of the text of the trivia itself; that will be handle by the user of the trivia.
+        //    // Assume the all trivia is leading trivia.
+
+        //    Instances.SyntaxTriviaOperator.Verify_IsInLeadingTrivia(trivia);
+
+        //    var token = trivia.Token;
+
+        //    // In the parent token, find the index of the given trivia.
+        //    var indexOfTrivia = token.LeadingTrivia.IndexOf(trivia);
+
+
+        //    // Find the start index in the parent token's leading trivia; the start index is the index after the last new-line trivia or structured trivia before the given trivia,
+        //    //  or the first index if there is none.
+        //    var priorTokensCount = indexOfTrivia;
+        //    var startTrivia = token.LeadingTrivia.Take(priorTokensCount)
+        //        .Where(trivia => trivia.Is_NewLine() || trivia.HasStructure)
+        //        .LastOrDefault();
+
+        //    var startIndex = startTrivia == default
+        //        ? 0
+        //        : token.LeadingTrivia.IndexOf(startTrivia)
+        //        ;
+
+        //    // Accumulate all whitespace in trivias from the first index to the last.
+            
+            
+        //}
+
         /// <summary>
         /// Indents the node by the given indentation.
         /// </summary>
@@ -56,6 +89,7 @@ namespace R5T.E0068
             IIndentation indentation)
             where TNode : SyntaxNode
         {
+            // Modify code.
             node = Instances.SyntaxTriviaOperator.Modify_NewLineContainingTriviaLists(
                 node,
                 (trivias, newLineTrivia) =>
@@ -67,6 +101,23 @@ namespace R5T.E0068
 
                     return newTrivias;
                 });
+
+            // Modify documentation.
+            var documentationCommentExteriorTrivias = Instances.SyntaxNodeOperator.Get_DescendantTrivias(node)
+                .Where(token => token.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia))
+                .Now();
+
+            node = Instances.SyntaxNodeOperator.Replace_Trivias(
+                node,
+                documentationCommentExteriorTrivias
+                    .Select(trivia =>
+                    {
+                        var newTrivia = Instances.SyntaxTriviaOperator.New(
+                            SyntaxKind.DocumentationCommentExteriorTrivia,
+                            indentation.Value.ToFullString() + trivia.ToString());
+
+                        return (trivia, newTrivia);
+                    }));
 
             // Now, also indent (just indent) the node itself.
             node = this.Indent(

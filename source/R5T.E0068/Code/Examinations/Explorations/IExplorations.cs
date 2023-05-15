@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using R5T.F0124.Extensions;
 using R5T.T0141;
@@ -13,6 +15,80 @@ namespace R5T.E0068
     [ExplorationsMarker]
     public partial interface IExplorations : IExplorationsMarker
     {
+        public void Indent_DocumentationCommentTrivias()
+        {
+            /// Inputs.
+            var code = Instances.MethodDeclarations.Main_WithDocumentationAndSingleTabIndentation;
+            var indentation = Instances.Indentations.Tab_Double;
+            var outputFilePath = Instances.FilePaths.CSharp_Temp;
+
+
+            /// Run.
+            var indentationText = indentation.Value.ToFullString();
+            var indentationTextCount = indentationText.Length;
+
+            var methodDeclaration = Instances.SyntaxParser.Parse_MethodDeclaration(code);
+
+            // Find single-line documentation comment trivias.
+            var documentationCommentExteriorTrivias = Instances.SyntaxNodeOperator.Get_DescendantTrivias(methodDeclaration)
+                .Where(token => token.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia))
+                .Now();
+
+            methodDeclaration = Instances.SyntaxNodeOperator.Replace_Trivias(
+                methodDeclaration,
+                documentationCommentExteriorTrivias
+                    .Select(trivia =>
+                    {
+                        var newTrivia = Instances.SyntaxTriviaOperator.New(
+                            SyntaxKind.DocumentationCommentExteriorTrivia,
+                            indentation.Value.ToFullString() + trivia.ToString());
+
+                        return (trivia, newTrivia);
+                    }));
+
+            Instances.SyntaxSerializer.WriteToFile_Synchronous(
+                methodDeclaration,
+                outputFilePath.Value);
+
+            Instances.NotepadPlusPlusOperator.Open(
+                outputFilePath.Value);
+        }
+
+        public void Find_DocumentationCommentExteriorTrivias()
+        {
+            /// Inputs.
+            var code = Instances.MethodDeclarations.Main_WithDocumentationAndSingleTabIndentation;
+            var indentation = Instances.Indentations.Tab_Double;
+            var outputFilePath = Instances.FilePaths.CSharp_Temp;
+
+
+            /// Run.
+            var methodDeclaration = Instances.SyntaxParser.Parse_MethodDeclaration(code);
+
+            var documentationCommentExteriorTrivias = Instances.SyntaxNodeOperator.Get_DescendantTrivias(methodDeclaration)
+                .Where(token => token.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia))
+                .Now();
+
+            methodDeclaration = Instances.SyntaxNodeOperator.Replace_Trivias(
+                methodDeclaration,
+                documentationCommentExteriorTrivias
+                    .Select(trivia =>
+                    {
+                        var newTrivia = Instances.SyntaxTriviaOperator.New(
+                            SyntaxKind.DocumentationCommentExteriorTrivia,
+                            indentation.Value.ToFullString() + "///");
+
+                        return (trivia, newTrivia);
+                    }));
+
+            Instances.SyntaxSerializer.WriteToFile_Synchronous(
+                methodDeclaration,
+                outputFilePath.Value);
+
+            Instances.NotepadPlusPlusOperator.Open(
+                outputFilePath.Value);
+        }
+
         public void RoundTrip_DeserializationSerialization()
         {
             /// Input.
@@ -183,20 +259,7 @@ namespace R5T.E0068
 
 
             /// Run.
-            var methodDeclaration = Instances.SyntaxNodeOperator.New(
-                () => SyntaxFactory.MethodDeclaration(
-                    Instances.SyntaxTypes.Void,
-                    Instances.MethodNames.Main.Value),
-                Instances.MethodDeclarationOperations.Ensure_HasBody,
-                methodDeclaration =>
-                {
-                    var bodyWrapper = new BlockSyntaxWrapper(methodDeclaration.Body);
-
-                    Instances.HasOpenAndCloseBracesOperator.Ensure_OpenAndCloseBracesOnNewLines(bodyWrapper);
-
-                    return methodDeclaration.WithBody(bodyWrapper.BlockSyntax);
-                });
-
+            var methodDeclaration = Instances.MethodDeclarationSyntaxes.Main_Synchronous;
 
             var methodIdentifier = methodDeclaration.Identifier;
 
@@ -227,20 +290,20 @@ namespace R5T.E0068
 
 
             /// Run.
-            var methodDeclaration = Instances.SyntaxNodeOperator.New(
-                () => SyntaxFactory.MethodDeclaration(
-                    Instances.SyntaxTypes.Void,
-                    Instances.MethodNames.Main.Value),
-                Instances.MethodDeclarationOperations.Ensure_HasBody,
-                methodDeclaration =>
-                {
-                    var bodyWrapper = new BlockSyntaxWrapper(methodDeclaration.Body);
+            //var methodDeclaration = Instances.SyntaxNodeOperator.New(
+            //    () => SyntaxFactory.MethodDeclaration(
+            //        Instances.TypeSyntaxes.Void,
+            //        Instances.MethodNames.Main.Value),
+            //    Instances.MethodDeclarationOperations.Ensure_HasBody,
+            //    methodDeclaration =>
+            //    {
+            //        var bodyWrapper = new BlockSyntaxWrapper(methodDeclaration.Body);
 
-                    Instances.HasOpenAndCloseBracesOperator.Ensure_OpenAndCloseBracesOnNewLines(bodyWrapper);
+            //        Instances.HasOpenAndCloseBracesOperator.Ensure_OpenAndCloseBracesOnNewLines(bodyWrapper);
 
-                    return methodDeclaration.WithBody(bodyWrapper.BlockSyntax);
-                });
-
+            //        return methodDeclaration.WithBody(bodyWrapper.BlockSyntax);
+            //    });
+            var methodDeclaration = Instances.MethodDeclarationSyntaxes.Main_Synchronous;
 
             var methodIdentifier = methodDeclaration.Identifier;
 

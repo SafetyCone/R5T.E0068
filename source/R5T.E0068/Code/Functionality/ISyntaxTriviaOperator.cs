@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using R5T.F0000;
 using R5T.F0000.Extensions;
 using R5T.F0124;
 using R5T.F0124.Extensions;
@@ -267,6 +271,181 @@ namespace R5T.E0068
             return output;
         }
 
+        public StructuredTriviaSyntax Get_AncestorStructuredTriviaSyntax(SyntaxTrivia trivia)
+        {
+            this.Verify_IsPartOfStructuredTrivia(trivia);
+
+            var parentToken = this.Verify_HasParent(trivia);
+
+            var output = Instances.SyntaxTokenOperator.Get_AncestorStructuredTriviaSyntax(parentToken);
+            return output;
+        }
+
+        public SyntaxTrivia Get_AncestorStructuredTrivia(SyntaxTrivia trivia)
+        {
+            var syntax = this.Get_AncestorStructuredTriviaSyntax(trivia);
+
+            var parentTrivia = Instances.StructuredTriviaSyntaxOperator.Verify_HasParentTrivia(syntax);
+            return parentTrivia;
+        }
+
+        /// <summary>
+        /// Gets the token containing the ancestor structured trivia.
+        /// The ancestor structured trivia is returned as well, to aid in determining whether the structured trivia is in the token's leading or trailing trivia.
+        /// </summary>
+        public (SyntaxToken token, SyntaxTrivia structuredTrivia) Get_AncestorStructuredTriviaToken(SyntaxTrivia trivia)
+        {
+            var structuredTrivia = this.Get_AncestorStructuredTrivia(trivia);
+
+            var parentToken = this.Verify_HasParent(structuredTrivia);
+            return (parentToken, structuredTrivia);
+        }
+
+        public IEnumerable<SyntaxTrivia> Get_PriorLeadingTrivias(SyntaxTrivia trivia)
+        {
+            var (parentToken, indexInLeadingTrivia) = this.Verify_IsInLeadingTrivia(trivia);
+
+            for (int i = 0; i < indexInLeadingTrivia; i++)
+            {
+                yield return parentToken.LeadingTrivia[i];
+            }
+        }
+
+        /// <summary>
+        /// Gets all trivias separating the given trivia from the token prior to the trivia (.
+        /// </summary>
+        /// <remarks>
+        /// Useful when querying indentation in order to set indentation.
+        /// </remarks>
+        public IEnumerable<SyntaxTrivia> Get_SeparatingTrivias(SyntaxTrivia trivia)
+        {
+            // There is some confusion regarding getting separating trivias when the boundary might cross a structured trivia line.
+
+            var (parentToken, indexInLeadingTrivia) = this.Verify_IsInLeadingTrivia(trivia);
+            
+            var isInStructuredTrivia = this.Is_InStructuredTrivia(trivia);
+            if(isInStructuredTrivia)
+            {
+                // Determine if the parent token is the first token inside of the structured trivia.
+
+                // Get the token previous to the parent token, but do not consider any forms of structured trivia.
+                // We are in structured trivia, and so will either get a prior token within the same structured trivia,
+                // or a token outside (and previous to) the structured trivia.
+                var previousToken = parentToken.GetPreviousToken(
+                    includeZeroWidth: false,
+                    includeSkipped: false,
+                    includeDirectives: false,
+                    includeDocumentationComments: false);
+
+                var previousTokenIsInStructuredTrivia = Instances.SyntaxTokenOperator.Is_InStructuredTrivia(previousToken);
+
+                var parentTokenIsFirstInStructuredTrivia = !previousTokenIsInStructuredTrivia;
+                if(parentTokenIsFirstInStructuredTrivia)
+                {
+                    // If the parent token is the first token in its structured trivia, then we need to consider both:
+                    //  1. Trailing trivia on the token previous to the token containing the structured trivia.
+                    //  2. Leading trivia before the structured trivia on the token containg the structured trivia.
+
+                    // Get the token containing the ancestor structured trivia.
+                    var (ancestorStructuredTriviaToken, structuredTrivia) = this.Get_AncestorStructuredTriviaToken(trivia);
+
+                    // Should be true for separating trivia, and we will need the index.
+                    (_, int indexOfStructuredTriviaInAncestorLeadingTrivia) = this.Verify_IsInLeadingTrivia(structuredTrivia);
+
+                    // Consider everything since the prior token could be in structured trivia.
+                    var previousAncestorStructuredTriviaToken = ancestorStructuredTriviaToken.GetPreviousToken(
+                        includeZeroWidth: true,
+                        // Assume trivia is in valid C# code.
+                        includeSkipped: false,
+                        includeDirectives: true,
+                        includeDocumentationComments: true);
+
+                    // Get all trailing trivias of the previous node.
+                    foreach (var previousTokenTrailingTrivia in previousAncestorStructuredTriviaToken.TrailingTrivia)
+                    {
+                        yield return previousTokenTrailingTrivia;
+                    }
+
+                    // Get all leading trivias up to, but not including, the trivia in the 
+                    for (int iTrivia = 0; iTrivia < indexOfStructuredTriviaInAncestorLeadingTrivia; iTrivia++)
+                    {
+                        yield return ancestorStructuredTriviaToken.LeadingTrivia[iTrivia];
+                    }
+                }
+                else
+                {
+                    // Just a regular operation because both tokens are inside of the same structured trivia context.
+                    // Get the trailing trivia of previous token, and the leading trivia of the current token prior to the given trivia.
+                    foreach (var previousTokenTrailingTrivia in previousToken.TrailingTrivia)
+                    {
+                        yield return previousTokenTrailingTrivia;
+                    }
+                }
+            }
+            else
+            {
+                // Get all the previous token's trailing trivia.
+
+                // Consider everything since the prior token could be in structured trivia.
+                var previousToken = parentToken.GetPreviousToken(
+                    includeZeroWidth: true,
+                    // Assume trivia is in valid C# code.
+                    includeSkipped: false,
+                    includeDirectives: true,
+                    includeDocumentationComments: true);
+
+                foreach (var previousTokenTrailingTrivia in previousToken.TrailingTrivia)
+                {
+                    yield return previousTokenTrailingTrivia;
+                }
+            }
+
+            // Return tokens in the parent's leading trivia that come before the given triva.
+            for (int i = 0; i < indexInLeadingTrivia; i++)
+            {
+                yield return parentToken.LeadingTrivia[i];
+            }
+        }
+
+        /// <summary>
+        /// Get all whitespace trivias separating the given trivia from the token prior to the trivia.
+        /// </summary>
+        /// <remarks>
+        /// Useful when querying indentation in order to set indentation.
+        /// </remarks>
+        public IEnumerable<SyntaxTrivia> Get_SeparatingTextTrivias(SyntaxTrivia trivia)
+        {
+            var separatingTrivias = this.Get_SeparatingTrivias(trivia);
+
+            // Return all trivias after the last new-line or structured trivia.
+            var output = separatingTrivias.Reverse()
+                .TakeWhile(trivia => !trivia.Is_NewLine() && !trivia.Is_Structured())
+                .Reverse();
+
+            return output;
+        }
+
+        public string Get_SeparatingText(SyntaxTrivia trivia)
+        {
+            var separatingWhitespaceTrivias = this.Get_SeparatingTextTrivias(trivia);
+
+            var stringBuilder = new StringBuilder();
+            foreach (var separatingWhitespaceTrivia in separatingWhitespaceTrivias)
+            {
+                stringBuilder.Append(separatingWhitespaceTrivia.ToFullString());
+            }
+
+            var output = stringBuilder.ToString();
+            return output;
+        }
+
+        public WasFound<SyntaxToken> Has_Parent(SyntaxTrivia trivia)
+        {
+            // If no parent, the parent token will be the token default.
+            var output = WasFound.From(trivia.Token);
+            return output;
+        }
+
         public bool Is_Empty(SyntaxTrivia trivia)
         {
             var output = trivia.FullSpan.Length < 1;
@@ -282,6 +461,35 @@ namespace R5T.E0068
         public bool Is_EndOfLine(SyntaxTrivia trivia)
         {
             var output = trivia.IsKind(SyntaxKind.EndOfLineTrivia);
+            return output;
+        }
+
+        public WasFound<(SyntaxToken parentToken, int indexInLeadingTrivia)> Is_InLeadingTrivia(SyntaxTrivia trivia)
+        {
+            var parentToken = this.Verify_HasParent(trivia);
+
+            var indexInLeadingTrivia = parentToken.LeadingTrivia.IndexOf(trivia);
+
+            var exists = Instances.IndexOperator.IsFound(indexInLeadingTrivia);
+
+            var output = WasFound.From(exists, (parentToken, indexInLeadingTrivia));
+            return output;
+        }
+
+        /// <summary>
+        /// Quality-of-life overload for <see cref="SyntaxTrivia.IsPartOfStructuredTrivia()"/>.
+        /// </summary>
+        public bool Is_InStructuredTrivia(SyntaxTrivia trivia)
+        {
+            var output = trivia.IsPartOfStructuredTrivia();
+            return output;
+        }
+
+        public bool Is_InTrailingTrivia(SyntaxTrivia trivia)
+        {
+            this.Verify_HasParent(trivia);
+
+            var output = trivia.Token.TrailingTrivia.Contains(trivia);
             return output;
         }
 
@@ -305,7 +513,7 @@ namespace R5T.E0068
         public bool Is_Whitespace(SyntaxTrivia trivia)
         {
             var output = trivia.IsKind(SyntaxKind.WhitespaceTrivia);
-            return output;  
+            return output;
         }
 
         public string ToString_TextRepresentation(SyntaxTrivia trivia)
@@ -318,6 +526,31 @@ namespace R5T.E0068
                 ;
 
             return textRepresentation;
+        }
+
+        public SyntaxToken Verify_HasParent(SyntaxTrivia trivia)
+        {
+            var hasParent = this.Has_Parent(trivia);
+
+            return hasParent.ResultOrExceptionIfNotFound(
+                "Trivia had no parent token (parent token has kind 'none').");
+        }
+
+        public (SyntaxToken parentToken, int indexInLeadingTrivia) Verify_IsInLeadingTrivia(SyntaxTrivia trivia)
+        {
+            var isInLeadingTrivia = this.Is_InLeadingTrivia(trivia);
+
+            return isInLeadingTrivia.ResultOrExceptionIfNotFound(
+                "Trivia was not in the leading trivia of its parent token.");
+        }
+
+        public void Verify_IsPartOfStructuredTrivia(SyntaxTrivia trivia)
+        {
+            var isPartOfStructuredTrivia = trivia.IsPartOfStructuredTrivia();
+            if (!isPartOfStructuredTrivia)
+            {
+                throw new Exception("Trivia was not part of a structured trivia.");
+            }
         }
     }
 }
