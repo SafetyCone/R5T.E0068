@@ -8,7 +8,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using R5T.F0000;
+using R5T.N0000;
+
 using R5T.F0000.Extensions;
 using R5T.F0124;
 using R5T.F0124.Extensions;
@@ -470,7 +471,7 @@ namespace R5T.E0068
 
             var indexInLeadingTrivia = parentToken.LeadingTrivia.IndexOf(trivia);
 
-            var exists = Instances.IndexOperator.IsFound(indexInLeadingTrivia);
+            var exists = Instances.IndexOperator.Is_Found(indexInLeadingTrivia);
 
             var output = WasFound.From(exists, (parentToken, indexInLeadingTrivia));
             return output;
