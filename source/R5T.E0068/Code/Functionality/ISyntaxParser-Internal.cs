@@ -13,6 +13,7 @@ namespace R5T.E0068.Internal
     [FunctionalityMarker]
     public partial interface ISyntaxParser : IFunctionalityMarker
     {
+        [Obsolete("See R5T.L0073.F001.Internal.ISyntaxParser.Parse()")]
         public TSyntax Parse<TSyntax>(
             string text,
             Func<string, TSyntax> parser,
@@ -28,6 +29,7 @@ namespace R5T.E0068.Internal
             return syntax;
         }
 
+        [Obsolete("See R5T.L0073.F001.Internal.ISyntaxParser.Parse()")]
         public TSyntax Parse<TSyntax>(
             string text,
             Func<string, TSyntax> parser,
@@ -39,12 +41,20 @@ namespace R5T.E0068.Internal
                 postParseOperations.AsEnumerable());
         }
 
+        /// <summary>
+        /// Parses the text of any kind of a class declaration.
+        /// </summary>
+        [Obsolete("See R5T.L0073.F001.Raw.Parse_Class()")]
         public ClassDeclarationSyntax Parse_Class(string text)
         {
             var output = this.Parse_MemberDeclaration(text) as ClassDeclarationSyntax;
             return output;
         }
 
+        /// <summary>
+        /// Parse text as if it was a compilation unit (a whole code file).
+        /// </summary>
+        [Obsolete("See R5T.L0073.F001.Raw.Parse_Compilation()")]
         public CompilationUnitSyntax Parse_CompilationUnit(string text)
         {
             var output = SyntaxFactory.ParseCompilationUnit(text);
@@ -63,12 +73,20 @@ namespace R5T.E0068.Internal
             return output;
         }
 
+        /// <summary>
+        /// Parses the text of any kind of member declaration (class, interface, method, namespace).
+        /// </summary>
+        [Obsolete("See R5T.L0073.F001.Raw.ISyntaxParser.Parse_MemberDeclaration()")]
         public MemberDeclarationSyntax Parse_MemberDeclaration(string text)
         {
             var output = SyntaxFactory.ParseMemberDeclaration(text);
             return output;
         }
 
+        /// <summary>
+        /// Parses the text of any kind of a method declaration.
+        /// </summary>
+        [Obsolete("See R5T.L0073.F001.Raw.ISyntaxParser.Parse_MethodDeclaration()")]
         public MethodDeclarationSyntax Parse_MethodDeclaration(string text)
         {
             var output = SyntaxFactory.ParseMemberDeclaration(text) as MethodDeclarationSyntax;

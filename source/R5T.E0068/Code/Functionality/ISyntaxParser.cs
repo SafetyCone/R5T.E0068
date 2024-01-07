@@ -16,7 +16,8 @@ namespace R5T.E0068
     {
         private static Internal.ISyntaxParser Internal => E0068.Internal.SyntaxParser.Instance;
 
-        
+
+        //[Obsolete("See R5T.L0073.F001.ISyntaxParser.Parse_Node()")]
         public TNode Parse_Node<TNode>(
             string text,
             Func<string, TNode> parser,
@@ -32,6 +33,7 @@ namespace R5T.E0068
                         Instances.SyntaxNodeOperations.Move_DescendantTrailingTriviaToLeadingTrivia));
         }
 
+        //[Obsolete("See R5T.L0073.F001.Internal.ISyntaxParser.Parse_Node()")]
         public TNode Parse_Node<TNode>(
             ICode code,
             Func<string, TNode> parser,

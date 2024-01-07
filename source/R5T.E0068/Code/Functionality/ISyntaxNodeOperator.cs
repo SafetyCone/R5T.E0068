@@ -11,6 +11,7 @@ using R5T.N0000;
 using R5T.T0132;
 
 using R5T.E0068.Extensions;
+using System.Runtime.InteropServices.ObjectiveC;
 
 
 namespace R5T.E0068
@@ -18,6 +19,7 @@ namespace R5T.E0068
     [FunctionalityMarker]
     public partial interface ISyntaxNodeOperator : IFunctionalityMarker
     {
+        [Obsolete("See R5T.L0073.F001.Utilities.ISyntaxNodeOperator.AnnotateTokens()")]
         public TNode AnnotateTokens<TNode>(
             TNode node,
             IEnumerable<SyntaxToken> tokens,
@@ -136,6 +138,7 @@ namespace R5T.E0068
         /// <summary>
         /// Chooses <see cref="Get_AnnotatedDescendantTrivia(SyntaxNode, SyntaxAnnotation)"/> as the default.
         /// </summary>
+        [Obsolete("See R5T.L0037.F001.ISyntaxNodeOperator.Get_AnnotatedTrivia().")]
         public SyntaxTrivia Get_AnnotatedTrivia(
             SyntaxNode node,
             SyntaxAnnotation annotation)
@@ -161,6 +164,7 @@ namespace R5T.E0068
         /// <remarks>
         /// Includes tokens inside of structured trivias.
         /// </remarks>
+        [Obsolete("See R5T.L0073.F001.ISyntaxNodeOperator.Get_DescendantTokens()")]
         public IEnumerable<SyntaxToken> Get_DescendantTokens(SyntaxNode node)
         {
             var output = node.DescendantTokens(descendIntoTrivia: true);
@@ -173,12 +177,14 @@ namespace R5T.E0068
         /// <remarks>
         /// Includes trivias inside of structured trivias.
         /// </remarks>
+        [Obsolete("See R5T.L0037.ISyntaxNodeOperator.Get_DescendantTrivias()")]
         public IEnumerable<SyntaxTrivia> Get_DescendantTrivias(SyntaxNode node)
         {
             var output = node.DescendantTrivia(descendIntoTrivia: true);
             return output;
         }
 
+        [Obsolete("See R5T.L0037.F001.Utilities.ISyntaxNodeOperator.Get_NewLineTrivias()")]
         public SyntaxTrivia[] Get_NewLineTrivias(SyntaxNode node)
         {
             var output = Instances.SyntaxNodeOperator.Get_DescendantTrivias(node)
@@ -274,6 +280,7 @@ namespace R5T.E0068
             return output;
         }
 
+        
         public TNode Move_DescendantTrailingTriviaToLeadingTrivia<TNode>(TNode node)
             where TNode : SyntaxNode
         {
@@ -333,8 +340,8 @@ namespace R5T.E0068
 
                 // There is complexity surrounding where to place the prior node's trailing trivia:
                 //  * If the token is within a structured trivia:
-                //      => Insert prior node trailing trivia after the trivia containing the token in the leading trivia of the next node.
-                //  * Else, prepend prior node trailing trivia to the leading trivia of the next node.
+                //      => Insert token trailing trivia after the trivia containing the token in the leading trivia of the next token.
+                //  * Else, prepend prior token trailing trivia to the leading trivia of the next token.
                 var tokenIsWithinStructuredTrivia = Instances.SyntaxTokenOperator.Is_InStructuredTrivia(newToken);
 
                 var newNextTokenLeadingTrivia = tokenIsWithinStructuredTrivia
@@ -390,6 +397,7 @@ namespace R5T.E0068
         /// <summary>
         /// A better version that will throw if any of the given tokens are not found.
         /// </summary>
+        [Obsolete("See R5T.L0073.F001.ISyntaxNodeOperator.Replace_Tokens_Better()")]
         public TNode Replace_Tokens<TNode>(
             TNode node,
             IEnumerable<SyntaxToken> oldTokens,
@@ -419,6 +427,7 @@ namespace R5T.E0068
         /// <summary>
         /// <inheritdoc cref="Replace_Tokens{TNode}(TNode, IEnumerable{SyntaxToken}, Func{SyntaxToken, SyntaxToken, SyntaxToken})" path="/summary"/>
         /// </summary>
+        [Obsolete("See R5T.L0073.F001.ISyntaxNodeOperator.Replace_Tokens_Better()")]
         public TNode Replace_Tokens<TNode>(
             TNode node,
             IDictionary<SyntaxToken, SyntaxToken> replacements)
@@ -435,6 +444,7 @@ namespace R5T.E0068
         /// <summary>
         /// <inheritdoc cref="Replace_Tokens{TNode}(TNode, IEnumerable{SyntaxToken}, Func{SyntaxToken, SyntaxToken, SyntaxToken})" path="/summary"/>
         /// </summary>
+        [Obsolete("See R5T.L0073.F001.ISyntaxNodeOperator.Replace_Tokens_Better()")]
         public TNode Replace_Tokens<TNode>(
             TNode node,
             IEnumerable<(SyntaxToken, SyntaxToken)> replacements)
@@ -501,6 +511,7 @@ namespace R5T.E0068
         /// <summary>
         /// <inheritdoc cref="Replace_Trivias{TNode}(TNode, IEnumerable{SyntaxTrivia}, Func{SyntaxTrivia, SyntaxTrivia, SyntaxTrivia})" path="/summary"/>
         /// </summary>
+        [Obsolete("See R5T.L0037.F001.ISyntaxNodeOperator")]
         public TNode Replace_Trivias<TNode>(
             TNode node,
             IEnumerable<(SyntaxTrivia, SyntaxTrivia)> replacements)

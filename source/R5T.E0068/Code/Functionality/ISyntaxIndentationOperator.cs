@@ -42,8 +42,8 @@ namespace R5T.E0068
         //        ;
 
         //    // Accumulate all whitespace in trivias from the first index to the last.
-            
-            
+
+
         //}
 
         /// <summary>
@@ -53,6 +53,7 @@ namespace R5T.E0068
         /// Note: "indent" only applies the indentation to the start of the given node, not all descendants of the node.
         /// To indent the node and all descendants, see <see cref="Indent_Block{TNode}(TNode, IIndentation)"/>
         /// </remarks>
+        [Obsolete("See R5T.L0037.F001.ISyntaxIndentationOperator.Indent()")]
         public TNode Indent<TNode>(
             TNode node,
             IIndentation indentation)
@@ -84,6 +85,7 @@ namespace R5T.E0068
         /// <remarks>
         /// To indent only the start of the node, see <see cref="Indent{TNode}(TNode, IIndentation)"/>.
         /// </remarks>
+        [Obsolete("See R5T.L0037.F001.ISyntaxIndentationOperator")]
         public TNode Indent_Block<TNode>(
             TNode node,
             IIndentation indentation)

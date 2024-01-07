@@ -89,6 +89,10 @@ namespace R5T.E0068
                 outputFilePath.Value);
         }
 
+        /// <summary>
+        /// Round-trip a code file through deserialization then serialization to ensure we can get example syntax elements from a file.
+        /// </summary>
+        [Obsolete("See D8S.IExperiments.RoundTrip_DeserializationSerialization()")]
         public void RoundTrip_DeserializationSerialization()
         {
             /// Input.
@@ -115,7 +119,7 @@ namespace R5T.E0068
 
 
             /// Run.
-            var text = Instances.FileOperator.ReadText_Synchronous(codeFilePath.Value);
+            var text = Instances.FileOperator.Read_Text_Synchronous(codeFilePath.Value);
 
             var compilationUnit = Internal.SyntaxParser.Instance.Parse_CompilationUnit(text);
 

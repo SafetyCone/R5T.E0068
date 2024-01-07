@@ -17,6 +17,7 @@ namespace R5T.E0068
         /// <summary>
         /// A new, empty (zero element) syntax trivia list.
         /// </summary>
+        [Obsolete("See R5T.L0037.F001.ISyntaxTriviaLists.Empty")]
         public SyntaxTriviaList Empty => Instances.SyntaxTriviaListOperator.New();
 
         public SyntaxTriviaList For_HasTrivia_False => this.Empty;

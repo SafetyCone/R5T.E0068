@@ -162,6 +162,7 @@ namespace R5T.E0068
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaListOperator.Insert_After()")]
         public SyntaxTriviaList Insert_After(
             SyntaxTriviaList trivias,
             SyntaxTrivia triviaToInsertAfter,
@@ -247,6 +248,7 @@ namespace R5T.E0068
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaListOperator.Prepend()")]
         public SyntaxTriviaList Prepend(
             SyntaxTriviaList trivias,
             SyntaxTriviaList prependix)

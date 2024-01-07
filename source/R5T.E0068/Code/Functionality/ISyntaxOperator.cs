@@ -85,7 +85,7 @@ namespace R5T.E0068
 
         public CompilationUnitSyntax Load_Synchronous(ICodeFilePath codeFilePath)
         {
-            var code = Instances.FileOperator.ReadText_Synchronous(codeFilePath.Value);
+            var code = Instances.FileOperator.Read_Text_Synchronous(codeFilePath.Value);
 
             var compilationUnit = Instances.SyntaxParser.Parse_CompilationUnitSyntax(code);
             return compilationUnit;

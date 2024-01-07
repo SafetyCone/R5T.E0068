@@ -7,6 +7,7 @@ namespace R5T.E0068.Extensions
 {
     public static class SyntaxTriviaListExtensions
     {
+        [Obsolete]
         public static SyntaxTriviaList Prepend(this SyntaxTriviaList trivias,
             SyntaxTriviaList prependix)
         {

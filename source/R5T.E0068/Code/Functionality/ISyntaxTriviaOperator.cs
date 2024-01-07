@@ -16,6 +16,7 @@ using R5T.F0124.Extensions;
 using R5T.T0132;
 
 using R5T.E0068.Extensions;
+using System.Runtime.InteropServices.ObjectiveC;
 
 
 namespace R5T.E0068
@@ -177,6 +178,7 @@ namespace R5T.E0068
                 Console.Out);
         }
 
+        [Obsolete("See R5T.L0073.F001.Utilities.ISyntaxNodeOperations.Modify_NewLineContainingTriviaLists()")]
         public TNode Modify_NewLineContainingTriviaLists<TNode>(
             TNode node,
             Func<SyntaxTriviaList, SyntaxTrivia, SyntaxTriviaList> modifier)
@@ -204,6 +206,7 @@ namespace R5T.E0068
             return node;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaOperator.Modify_ContainingTriviaList()")]
         public TNode Modify_ContainingTriviaList<TNode>(
             TNode node,
             SyntaxTrivia trivia,
@@ -255,6 +258,7 @@ namespace R5T.E0068
         /// The kind can be one of:
         /// <inheritdoc cref="Documentation.ForSyntaxTriviaAllowedKinds" path="/definition"/>
         /// </remarks>
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaOperator.New()")]
         public SyntaxTrivia New(
             SyntaxKind kind,
             string text)
@@ -263,6 +267,7 @@ namespace R5T.E0068
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaOperator.New_Whitespace()")]
         public SyntaxTrivia New_Whitespace(string text)
         {
             var output = this.New(
@@ -459,6 +464,7 @@ namespace R5T.E0068
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTriviaOperator.Is_EndOfLine()")]
         public bool Is_EndOfLine(SyntaxTrivia trivia)
         {
             var output = trivia.IsKind(SyntaxKind.EndOfLineTrivia);

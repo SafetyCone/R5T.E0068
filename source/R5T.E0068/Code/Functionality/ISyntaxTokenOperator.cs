@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 
@@ -159,12 +157,14 @@ namespace R5T.E0068
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTokenOperator.Is_None()")]
         public bool Is_None(SyntaxToken token)
         {
             var output = token.IsKind(SyntaxKind.None);
             return output;
         }
 
+        [Obsolete("See R5T.L0073.F001.ISyntaxTokenOperator.Is_None()")]
         public bool Is_NotNone(SyntaxToken token)
         {
             var isNone = this.Is_None(token);

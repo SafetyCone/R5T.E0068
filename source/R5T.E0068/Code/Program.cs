@@ -19,7 +19,7 @@ namespace R5T.E0068
             //Explorations.Instance.Create_MainMethod_WithIndentation();
             //Explorations.Instance.Create_MainMethod_WithDoubleIndentation();
             //Explorations.Instance.Create_MainMethod_SetIndentation();
-            Explorations.Instance.Create_MainMethod_SetBlockIndentation();
+            //Explorations.Instance.Create_MainMethod_SetBlockIndentation();
             //Explorations.Instance.Create_XmlDocumentationComment();
             //Explorations.Instance.List_SyntaxNodesInCodeFile();
             //Explorations.Instance.List_SyntaxTokens_InCodeFile();
