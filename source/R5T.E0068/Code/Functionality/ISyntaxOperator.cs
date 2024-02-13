@@ -6,11 +6,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using R5T.N0000;
-
+using R5T.L0089.T000;
 using R5T.T0132;
 using R5T.T0172;
-using R5T.T0193.Extensions;
 
 using R5T.E0068.Extensions;
 
@@ -51,7 +49,7 @@ namespace R5T.E0068
                 })
                 .Now();
 
-            var output = WasFound.FromArray(nodesWithTrailingTriviaOrEmpty);
+            var output = WasFound.From_Array(nodesWithTrailingTriviaOrEmpty);
             return output;
         }
 
@@ -79,7 +77,7 @@ namespace R5T.E0068
                 })
                 .Now();
 
-            var output = WasFound.FromArray(tokensWithTrailingTriviaOrEmpty);
+            var output = WasFound.From_Array(tokensWithTrailingTriviaOrEmpty);
             return output;
         }
 

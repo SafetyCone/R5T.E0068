@@ -6,8 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using R5T.N0000;
-
+using R5T.L0089.T000;
 using R5T.F0000.Extensions;
 using R5T.F0124;
 using R5T.F0124.Extensions;
@@ -227,7 +226,7 @@ namespace R5T.E0068
         {
             var hasParent = this.Has_Parent(token);
 
-            return hasParent.ResultOrExceptionIfNotFound(
+            return hasParent.Get_Result_OrExceptionIfNotFound(
                 "Token had no parent node.");
         }
 

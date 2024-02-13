@@ -8,15 +8,13 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using R5T.N0000;
-
 using R5T.F0000.Extensions;
 using R5T.F0124;
 using R5T.F0124.Extensions;
+using R5T.L0089.T000;
 using R5T.T0132;
 
 using R5T.E0068.Extensions;
-using System.Runtime.InteropServices.ObjectiveC;
 
 
 namespace R5T.E0068
@@ -539,7 +537,7 @@ namespace R5T.E0068
         {
             var hasParent = this.Has_Parent(trivia);
 
-            return hasParent.ResultOrExceptionIfNotFound(
+            return hasParent.Get_Result_OrExceptionIfNotFound(
                 "Trivia had no parent token (parent token has kind 'none').");
         }
 
@@ -547,7 +545,7 @@ namespace R5T.E0068
         {
             var isInLeadingTrivia = this.Is_InLeadingTrivia(trivia);
 
-            return isInLeadingTrivia.ResultOrExceptionIfNotFound(
+            return isInLeadingTrivia.Get_Result_OrExceptionIfNotFound(
                 "Trivia was not in the leading trivia of its parent token.");
         }
 

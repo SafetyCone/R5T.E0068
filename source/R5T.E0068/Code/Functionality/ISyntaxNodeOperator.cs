@@ -6,12 +6,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using R5T.N0000;
-
+using R5T.L0089.T000;
 using R5T.T0132;
 
 using R5T.E0068.Extensions;
-using System.Runtime.InteropServices.ObjectiveC;
 
 
 namespace R5T.E0068
@@ -103,7 +101,7 @@ namespace R5T.E0068
                 node,
                 annotation);
 
-            var output = Instances.WasFoundOperator.ResultOrExceptionIfNotFound(
+            var output = Instances.WasFoundOperator.Get_Result_OrExceptionIfNotFound(
                 hasAnnotatedToken,
                 "No token with annotation found.");
 
@@ -128,7 +126,7 @@ namespace R5T.E0068
                 node,
                 annotation);
 
-            var output = Instances.WasFoundOperator.ResultOrExceptionIfNotFound(
+            var output = Instances.WasFoundOperator.Get_Result_OrExceptionIfNotFound(
                 hasAnnotatedToken,
                 "No trivia with annotation found.");
 
@@ -598,7 +596,7 @@ namespace R5T.E0068
         {
             var hasParent = this.Has_Parent(node);
 
-            return hasParent.ResultOrExceptionIfNotFound(
+            return hasParent.Get_Result_OrExceptionIfNotFound(
                 "Node had no parent node.");
         }
 
